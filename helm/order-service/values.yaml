@@ -1,0 +1,23 @@
+replicaCount: 2
+
+image:
+  repository: localhost:32000/order-service
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: NodePort
+  port: 8080
+  targetPort: 8080
+  nodePort: 30080
+
+mysql:
+  image: mysql:8.4.7
+  database: orderdb
+  username: myuser
+  password: secret
+  rootPassword: verysecret
+
+  storage:
+    size: 2Gi
+    storageClass: microk8s-hostpath
