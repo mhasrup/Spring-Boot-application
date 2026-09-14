@@ -87,8 +87,8 @@ pipeline {
                        '''
                    }
                }
+       }
        post {
-
                success {
                    echo 'CI/CD pipeline completed successfully!'
                }
@@ -101,5 +101,4 @@ pipeline {
                    echo "Build number: ${BUILD_NUMBER}"
                }
            }
-    }
 }
