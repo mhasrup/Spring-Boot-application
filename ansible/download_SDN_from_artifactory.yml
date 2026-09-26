@@ -12,7 +12,7 @@
 
    - name: "echo if directory already existed"
      debug:
-      msg: "the  /opt/SDN/{{ sdn_version }} directory is already existed
+      msg: "the /opt/SDN/{{ sdn_version }} directory is already existed"
       when: sdn_folder.stat.exists
 
     - name: create directory if not exists
@@ -24,12 +24,12 @@
         owner: shivam
         when: sdn_folder.stat.exists == false
 
-     - meta: end_host
-       when: sdn_folder.stat.exists
+     #- meta: end_host
+     #  when: sdn_folder.stat.exists
 
      - name: download artifacts
        uri:
-         url: "https://snapshotrepo.wsgc.com/artifactory/gradle-release-local/com/wsgc/SDNs/{{ sdn_version }}/"
+         url: "http://192.168.64.1:8082/artifactory/gradle-release-local/com/wsgc/SDNs/{{ sdn_version }}/"
          method: GET
          return content: yes
          validate_certs: false
@@ -41,7 +41,7 @@
 
       - name: download files
         uri:
-          url: "https://snapshotrepo.wsgc.com/artifactory/gradle-release-local/com/wsgc/SDNs/{{ sdn_version }}/{{ item }}"
+          url: "http://192.168.64.1:8082/artifactory/gradle-release-local/com/wsgc/SDNs/{{ sdn_version }}/{{ item }}"
           dest: "/apps/scope/SDN/{{ sdn_version }}/{{ item }}"
           method: GET
           validate_certs: false
