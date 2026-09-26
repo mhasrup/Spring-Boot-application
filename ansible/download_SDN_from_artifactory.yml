@@ -6,8 +6,9 @@
 
   vars:
     # Pass these via CLI (-e "artifactory_user=... artifactory_password=...") or set defaults here
-    artifactory_user: "admin"
-    artifactory_password: "Honda@2563#"
+    #-e artifactory_user=${ARTIFACTORY_USER} -e artifactory_password=${ARTIFACTORY_PASS}
+    #artifactory_user: "admin"
+    #artifactory_password: "Honda@2563#"
 
   tasks:
     - name: "check Directory"
