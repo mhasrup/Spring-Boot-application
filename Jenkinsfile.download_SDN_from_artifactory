@@ -1,52 +1,32 @@
 pipeline {
-    options { buildDiscarder(logRotator(numToKeepStr: '60')) }
-    agent { label 'ubuntu' }
-/*
-    tools {
-        git 'ubuntu'
-    }
-*/
-docker {
+    agent {
+        docker {
             label 'ubuntu-devops'                   // Runs the container on your VM agent
             image 'cytopia/ansible:latest'          // Docker image with Ansible pre-installed
             args '-v /home/laxman:/home/laxman'     // Mounts host directories so Ansible can write to /home/laxman/SDN
         }
-    stages {
-        stage('CheckOutGit') {
-            steps {
-                checkout([$class: 'GitSCM',
-                    branches: [[name: 'main']],
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [],
-                    submoduleCfg: [],
-                    userRemoteConfigs: [[credentialsId: 'laxman_github_token',
-                        url: 'git@github.com:mhasrup/Spring-Boot-application.git']]
-                ])
-            }
-        }
+    }
+    
+    parameters {
+        string(name: 'SDN_VERSION', defaultValue: 'SDN001', description: 'SDN Version to download')
+    }
 
-        stage('SDNfixPack Automation') {
+    stages {
+        stage('Run Ansible inside Container') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'artifactory_cred', 
                     usernameVariable: 'ARTIFACTORY_USER', 
                     passwordVariable: 'ARTIFACTORY_PASS'
-                )])
-                dir('ansible') {
-                    //wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
-                        script {String[] SDNs = params.SDNs.split(",");
-                            for(String SDN: SDNs){
-                                sh "pwd"
-                                sh "export ANSIBLE_FORCE_COLOR=true; ansible-playbook download_SDN_from_artifactory.yml --user=laxman --extra-vars sdn_version=${SDN} -e artifactory_user=${ARTIFACTORY_USER} -e artifactory_password=${ARTIFACTORY_PASS}"
-                               // -extra-vars is_this_0B2=${params.OB2_or_PH1} -extra-vars workspace=${WORKSPACE}"
-                              }
-                        //}
-                    }
+                )]) {
+                    sh '''
+                        ansible-playbook download_sdn.yml \
+                          -e "sdn_version=${SDN_VERSION}" \
+                          -e "artifactory_user=${ARTIFACTORY_USER}" \
+                          -e "artifactory_password=${ARTIFACTORY_PASS}"
+                    '''
                 }
             }
         }
-
     }
 }
-
-
