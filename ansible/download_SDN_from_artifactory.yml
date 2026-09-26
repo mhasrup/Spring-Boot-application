@@ -20,7 +20,7 @@
         path: "/home/laxman/SDN/{{ sdn_version }}"
         state: directory
         mode: '0755'
-        group: unixusers
+        group: laxman
         owner: laxman
       when: not sdn_folder.stat.exists
 
