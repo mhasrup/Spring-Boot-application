@@ -21,7 +21,7 @@
         state: directory
         mode: 0755
         group: unixusers
-        owner: shivam
+        owner: laxman
         when: sdn_folder.stat.exists == false
 
      #- meta: end_host
