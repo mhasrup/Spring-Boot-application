@@ -4,6 +4,11 @@
   gather_facts: false
   become: false
 
+  vars:
+    # Pass these via CLI (-e "artifactory_user=... artifactory_password=...") or set defaults here
+    artifactory_user: "admin"
+    artifactory_password: "Honda@2563#"
+
   tasks:
     - name: "check Directory"
       stat:
@@ -28,6 +33,9 @@
       uri:
         url: "http://192.168.64.1:8082/artifactory/gradle-release-local/com/wsgc/SDNs/{{ sdn_version }}/"
         method: GET
+        user: "{{ artifactory_user }}"
+        password: "{{ artifactory_password }}"
+        force_basic_auth: true
         return_content: true
         validate_certs: false
       register: response
@@ -40,6 +48,9 @@
       get_url:
         url: "http://192.168.64.1:8082/artifactory/gradle-release-local/com/wsgc/SDNs/{{ sdn_version }}/{{ item }}"
         dest: "/home/laxman/SDN/{{ sdn_version }}/{{ item }}"
+        url_username: "{{ artifactory_user }}"
+        url_password: "{{ artifactory_password }}"
+        force_basic_auth: true
         validate_certs: false
       loop: "{{ file_links }}"
       ignore_errors: true
