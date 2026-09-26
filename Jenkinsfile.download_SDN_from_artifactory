@@ -1,45 +1,40 @@
-pipeline{
-agent { label 'ubuntu' }
-parameters {
- string( 
-   name: 'roll_no',
-   description: 'enter student roll no'
-   )
-  string(
-    name: 'stud_name',
-    description: 'enter student name'
-   )
-  string(
-    name: 'stud_city',
-    description: 'enter student city'
-   )
-  choice(
-    name: 'stud_dept',
-    choices: ['CSE', 'IT', 'MECH', 'CIVIL'],
-    description: 'enter student department name'
-   )
-	booleanParam(
-		name: 'is_passed',
-		defaultValue : false,
-		description : 'Are you Passed in End Semester Exam'
-   )
-}
+pipeline {
+    options { buildDiscarder(logRotator(numToKeepStr: '60')) }
+    agent { label 'ubuntu' }
+    tools {
+        git 'ubuntu'
+    }
+    stages {
+        stage('CheckOutGit') {
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: 'main']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[credentialsId: 'laxman_github_token',
+                        url: 'git@github.com:mhasrup/Spring-Boot-application.git']]
+                ])
+            }
+        }
 
-stages {
-	stage('Display Student Details') {
-		steps {
-			echo "******Student Details********"
-			echo "============================="
-			
-			echo "Student Roll No : ${params.roll_no}"
-			echo "Student Name : ${params.stud_name}"
-			echo "Student city : ${params.stud_city}"
-			echo "Student Department : ${params.stud_dept}"
-			
-			echo "is Student passed : ${params.is_passed}"
-
-			echo "=========================================="
+        stage('SDNfixPack Automation') {
+            steps {
+                dir('ansible') {
+                    //wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+                        script {String[] SDNs = params.SDNs.split(",");
+                            for(String SDN: SDNs){
+                                sh "pwd"
+                                sh "export ANSIBLE_FORCE_COLOR=true; ansible-playbook download_SDN_from_artifactory.yml --user=laxman --extra-vars sdn_version=${SDN}"
+                               // -extra-vars is_this_0B2=${params.OB2_or_PH1} -extra-vars workspace=${WORKSPACE}"
+                              }
+                        //}
                     }
-             }
+                }
+            }
+        }
+
     }
 }
+
+
