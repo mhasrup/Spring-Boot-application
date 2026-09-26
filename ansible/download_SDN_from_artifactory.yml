@@ -15,35 +15,35 @@
       msg: "the /opt/SDN/{{ sdn_version }} directory is already existed"
       when: sdn_folder.stat.exists
 
-    - name: create directory if not exists
-      file:
-        path: "/opt/SDN/{{ sdn_version }}"
-        state: directory
-        mode: 0755
-        group: unixusers
-        owner: laxman
-        when: sdn_folder.stat.exists == false
+   - name: create directory if not exists
+     file:
+       path: "/opt/SDN/{{ sdn_version }}"
+       state: directory
+       mode: 0755
+       group: unixusers
+       owner: laxman
+       when: sdn_folder.stat.exists == false
 
      #- meta: end_host
      #  when: sdn_folder.stat.exists
 
-     - name: download artifacts
-       uri:
-         url: "http://192.168.64.1:8082/artifactory/gradle-release-local/com/wsgc/SDNs/{{ sdn_version }}/"
-         method: GET
-         return content: yes
-         validate_certs: false
-         register: response
+    - name: download artifacts
+      uri:
+        url: "http://192.168.64.1:8082/artifactory/gradle-release-local/com/wsgc/SDNs/{{ sdn_version }}/"
+        method: GET
+        return content: yes
+        validate_certs: false
+        register: response
          
-      - name: Extract file links
-        set_fact:
-          file_links: "{{ response.content | regex_findall('(7<=<a href=\") [^\"]+(?=\")') }}"
+    - name: Extract file links
+      set_fact:
+        file_links: "{{ response.content | regex_findall('(7<=<a href=\") [^\"]+(?=\")') }}"
 
-      - name: download files
-        uri:
-          url: "http://192.168.64.1:8082/artifactory/gradle-release-local/com/wsgc/SDNs/{{ sdn_version }}/{{ item }}"
-          dest: "/apps/scope/SDN/{{ sdn_version }}/{{ item }}"
-          method: GET
-          validate_certs: false
-          loop: "{{ file_links }}"
-          ignore_errors: yes
+    - name: download files
+      uri:
+        url: "http://192.168.64.1:8082/artifactory/gradle-release-local/com/wsgc/SDNs/{{ sdn_version }}/{{ item }}"
+        dest: "/opt/SDN/{{ sdn_version }}/{{ item }}"
+        method: GET
+        validate_certs: false
+        loop: "{{ file_links }}"
+        ignore_errors: yes
