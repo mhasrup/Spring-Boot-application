@@ -1,12 +1,22 @@
 pipeline {
+/*
     agent {
+
         docker {
             label 'ubuntu-devops'                   // Runs the container on your VM agent
             image 'cytopia/ansible:latest'          // Docker image with Ansible pre-installed
             args '-v /home/laxman:/home/laxman'     // Mounts host directories so Ansible can write to /home/laxman/SDN
         }
     }
-    
+*/
+    agent {
+        dockerContainer {
+            image 'cytopia/ansible:latest'
+            label 'ubuntu-devops'
+            args '-v /home/laxman:/home/laxman'
+        }
+    }
+
     parameters {
         string(name: 'SDN_VERSION', defaultValue: 'SDN001', description: 'SDN Version to download')
     }
