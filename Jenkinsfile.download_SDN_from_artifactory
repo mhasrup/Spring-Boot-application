@@ -1,9 +1,16 @@
 pipeline {
     options { buildDiscarder(logRotator(numToKeepStr: '60')) }
     agent { label 'ubuntu' }
+/*
     tools {
         git 'ubuntu'
     }
+*/
+docker {
+            label 'ubuntu-devops'                   // Runs the container on your VM agent
+            image 'cytopia/ansible:latest'          // Docker image with Ansible pre-installed
+            args '-v /home/laxman:/home/laxman'     // Mounts host directories so Ansible can write to /home/laxman/SDN
+        }
     stages {
         stage('CheckOutGit') {
             steps {
