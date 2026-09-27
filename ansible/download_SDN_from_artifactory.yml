@@ -40,9 +40,20 @@
         validate_certs: false
       register: response
 
+    #- name: Extract file links
+    #  set_fact:
+    #    file_links: "{{ response.content | regex_findall('href=\"([^\"]+)\"') }}"
+
     - name: Extract file links
       set_fact:
-        file_links: "{{ response.content | regex_findall('href=\"([^\"]+)\"') }}"
+        file_links: >-
+          {{
+            response.content
+            | regex_findall('href="([^"]+)"')
+            | reject('regex', '^\.\./?$')
+            | reject('regex', '/$')
+            | list
+          }}
 
     - name: download files
       get_url:
