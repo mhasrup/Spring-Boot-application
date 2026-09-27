@@ -2,7 +2,8 @@ replicaCount: 2
 
 image:
   repository: localhost:32000/order-service
-  tag: v1
+  #tag: v1
+  tag: "latest"
   pullPolicy: Always
 
 service:
