@@ -12,18 +12,17 @@ pipeline {
                     credentialsId: 'artifactory_cred', 
                     usernameVariable: 'ARTIFACTORY_USER', 
                     passwordVariable: 'ARTIFACTORY_PASS'
-                )]) {
-                    sh '''
-                        docker run --rm \
-                          -v $WORKSPACE:$WORKSPACE \
-                          -v /home/laxman:/home/laxman \
-                          -w $WORKSPACE \
-                          cytopia/ansible:latest \
-                          ansible-playbook download_sdn.yml \
-                            -e "sdn_version=${SDN_VERSION}" \
-                            -e "artifactory_user=${ARTIFACTORY_USER}" \
-                            -e "artifactory_password=${ARTIFACTORY_PASS}"
-                    '''
+                )]) 
+                  dir('ansible') {
+                    //wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+                        script {String[] SDNs = params.SDNs.split(",");
+                            for(String SDN: SDNs){
+                                sh "pwd"
+                                sh "export ANSIBLE_FORCE_COLOR=true; ansible-playbook download_SDN_from_artifactory.yml --user=laxman --extra-vars sdn_version=${SDN} -e artifactory_user=${ARTIFACTORY_USER} -e artifactory_password=${ARTIFACTORY_PASS}"
+                               // -extra-vars is_this_0B2=${params.OB2_or_PH1} -extra-vars workspace=${WORKSPACE}"
+                              }
+                        //}
+                    }
                 }
             }
         }
