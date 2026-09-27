@@ -1,35 +1,12 @@
 pipeline {
-agent { label 'ubuntu-devops' }
-/*
-    agent {
-
-        docker {
-            label 'ubuntu-devops'                   // Runs the container on your VM agent
-            image 'cytopia/ansible:latest'          // Docker image with Ansible pre-installed
-            args '-v /home/laxman:/home/laxman'     // Mounts host directories so Ansible can write to /home/laxman/SDN
-        }
-    }
-
-    agent {
-        dockerContainer {
-            image 'cytopia/ansible:latest'
-            label 'ubuntu-devops'
-            args '-v /home/laxman:/home/laxman'
-        }
-    }
-*/
+    agent { label 'ubuntu-devops' }
 
     parameters {
         string(name: 'SDN_VERSION', defaultValue: 'SDN001', description: 'SDN Version to download')
     }
 
     stages {
-        stage('Run Ansible inside Container') {
-        agent {
-                dockerContainer {
-                    image 'cytopia/ansible:latest'
-                }
-            }
+        stage('Run Ansible in Docker Container') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'artifactory_cred', 
@@ -37,10 +14,15 @@ agent { label 'ubuntu-devops' }
                     passwordVariable: 'ARTIFACTORY_PASS'
                 )]) {
                     sh '''
-                        ansible-playbook download_sdn.yml \
-                          -e "sdn_version=${SDN_VERSION}" \
-                          -e "artifactory_user=${ARTIFACTORY_USER}" \
-                          -e "artifactory_password=${ARTIFACTORY_PASS}"
+                        docker run --rm \
+                          -v $WORKSPACE:$WORKSPACE \
+                          -v /home/laxman:/home/laxman \
+                          -w $WORKSPACE \
+                          cytopia/ansible:latest \
+                          ansible-playbook download_sdn.yml \
+                            -e "sdn_version=${SDN_VERSION}" \
+                            -e "artifactory_user=${ARTIFACTORY_USER}" \
+                            -e "artifactory_password=${ARTIFACTORY_PASS}"
                     '''
                 }
             }
