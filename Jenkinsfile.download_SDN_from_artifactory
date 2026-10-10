@@ -49,8 +49,8 @@ pipeline {
                                         -e "sdn_version=${trimmedSDN}" \
                                         -e "artifactory_user=${ARTIFACTORY_USER}" \
                                         -e "artifactory_password=${ARTIFACTORY_PASS}"
+                                        '
                                 """
-                                '
                             }
                         }
                     }
