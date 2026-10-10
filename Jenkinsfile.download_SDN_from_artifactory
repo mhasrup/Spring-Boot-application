@@ -42,11 +42,15 @@ pipeline {
                                       -w \$WORKSPACE/ansible \
                                       -e ANSIBLE_FORCE_COLOR=true \
                                       cytopia/ansible:latest \
+                                      sh -c '
+                                        id laxman >/dev/null 2>&1 ||
+                                           useradd -u ${sh(returnStdout: true, script: 'id -u laxman').trim()} -o -M laxman
                                       ansible-playbook download_SDN_from_artifactory.yml \
                                         -e "sdn_version=${trimmedSDN}" \
                                         -e "artifactory_user=${ARTIFACTORY_USER}" \
                                         -e "artifactory_password=${ARTIFACTORY_PASS}"
                                 """
+                                '
                             }
                         }
                     }
